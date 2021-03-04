@@ -21,3 +21,9 @@ things learned:
 
 - alternatively, one can start from a w vector stored as `.npz` 
 `python3 approach.py --network network-snapshot-ffhq.pkl --outdir project --num-steps 100 --text 'an image of a girl with a face resembling Paul Krugman' --w w-7660ca0b7e95428cac94c89459b5cebd8a7acbd4.npz`
+
+## FFHQ test
+
+`python3 approach.py --network stylegan2-ffhq-config-f.pkl --outdir ffhq --num-steps 100 --text 'an image of an Instagram influencer girl' --psi 0.7 --seed 32`
+
+![an image of an Instagram influencer girl](samples/influencer.gif)
