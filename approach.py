@@ -27,6 +27,7 @@ def approach(
     regularize_noise_weight    = 10000, # was 1e5
     seed                       = 69097, 
     noise_opt                  = True, 
+    ws                         = None,
     text                       = 'a computer generated image', 
     device: torch.device
 ):
@@ -57,11 +58,16 @@ def approach(
     '''
 
     # derive W from seed
-    print('Generating w for seed %i' % seed )
-    z = torch.from_numpy(np.random.RandomState(seed).randn(1, G.z_dim)).to(device)
-    w_samples = G.mapping(z,  None, truncation_psi=psi)
-    w_samples = w_samples[:, :1, :].cpu().numpy().astype(np.float32)
-    w_avg = np.mean(w_samples, axis=0, keepdims=True)
+    if ws is None:
+        print('Generating w for seed %i' % seed )
+        z = torch.from_numpy(np.random.RandomState(seed).randn(1, G.z_dim)).to(device)
+        w_samples = G.mapping(z,  None, truncation_psi=psi)
+        w_samples = w_samples[:, :1, :].cpu().numpy().astype(np.float32)
+        w_avg = np.mean(w_samples, axis=0, keepdims=True)
+    else:
+        w_samples = torch.tensor(ws, device=device)
+        w_samples = w_samples[:, :1, :].cpu().numpy().astype(np.float32)
+        w_avg = np.mean(w_samples, axis=0, keepdims=True)
     #w_std = (np.sum((w_samples - w_avg) ** 2) / w_avg_samples) ** 0.5
     w_std = 2 # ~9.9 for portraits network. should compute if using median median
 
@@ -174,6 +180,7 @@ def approach(
 @click.option('--outdir',                 help='Where to save the output images', required=True, metavar='DIR')
 @click.option('--num-steps',              help='Number of optimization steps', type=int, default=1000, show_default=True)
 @click.option('--seed',                   help='Initial image seed', type=int, default=232322, show_default=True)
+@click.option('--w',                      help='Do not use seed but load w from a file', type=str, metavar='FILE')
 @click.option('--lr',                     help='Adam learning rate', type=float, required=False, default=0.02)
 @click.option('--psi',                    help='Truncation psi for initial image', type=float, required=False, default=0.81)
 @click.option('--inf',                    help='Initial noise factor', type=float, required=False, default=0.02)
@@ -181,7 +188,7 @@ def approach(
 @click.option('--noise-opt',              help='Optimize noise vars as well as w', type=bool, required=False, default=True)
 @click.option('--text',                   help='Text prompt', required=False, default='A computer-generated image')
 @click.option('--save-video',             help='Save an mp4 video of optimization progress', type=bool, default=True, show_default=True)
-@click.option('--save-ws',                help='Save intermediate Ws', type=bool, default=False, show_default=True)
+@click.option('--save-ws',                help='Save intermediate ws', type=bool, default=False, show_default=True)
 
 def run_approach(
     network_pkl: str,
@@ -194,6 +201,7 @@ def run_approach(
     lr: float,
     inf: float,
     nf: float,
+    w: str,
     psi: float,
     noise_opt: bool
 ):
@@ -221,6 +229,11 @@ def run_approach(
     hashname = str(hashlib.sha1((json.dumps(params)).encode('utf-16be')).hexdigest() )
     print('run hash', hashname)
 
+    ws = None
+    if w is not None:
+        print ('loading w from file', w, 'ignoring seed and psi')
+        ws = np.load(w)['w']
+        
     # take off
     print('Loading networks from "%s"...' % network_pkl)
     device = torch.device('cuda')
@@ -238,6 +251,7 @@ def run_approach(
         initial_noise_factor = inf,
         noise_floor = nf,
         text = text,
+        ws = ws,
         noise_opt = noise_opt
     )
 

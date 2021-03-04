@@ -18,3 +18,6 @@ things learned:
 - pick a seed
 - run
 `python3 approach.py --network network-snapshot-ffhq.pkl --outdir project --num-steps 100 --text 'an image of a girl with a face resembling Paul Krugman' --psi 0.8 --seed 12345`
+
+- alternatively, one can start from a w vector stored as `.npz` 
+`python3 approach.py --network network-snapshot-ffhq.pkl --outdir project --num-steps 100 --text 'an image of a girl with a face resembling Paul Krugman' --w w-7660ca0b7e95428cac94c89459b5cebd8a7acbd4.npz`
