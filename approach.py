@@ -221,10 +221,6 @@ def run_approach(
     hashname = str(hashlib.sha1((json.dumps(params)).encode('utf-16be')).hexdigest() )
     print('run hash', hashname)
 
-    # save params
-    with open(f'{outdir}/params-{hashname}.txt', 'w') as outfile:
-        json.dump(params, outfile)
-
     # take off
     print('Loading networks from "%s"...' % network_pkl)
     device = torch.device('cuda')
@@ -274,6 +270,10 @@ def run_approach(
     PIL.Image.fromarray(synth_image, 'RGB').save(f'{outdir}/out-{hashname}.png')
     np.savez(f'{outdir}/w-{hashname}-final.npz', w=projected_w.unsqueeze(0).cpu().numpy())
 
+
+    # save params
+    with open(f'{outdir}/params-{hashname}.txt', 'w') as outfile:
+        json.dump(params, outfile)
 
 if __name__ == "__main__":
     run_approach() 

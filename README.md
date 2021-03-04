@@ -7,6 +7,7 @@ based on the og `projector.py`
 things learned:
 - it's better to generate initial w values from a well converged sample rather than starting with random or median ones
 - optimizing w and noise inputs works better than w alone
+- default values of 0.02 for LR/noise work fine with portraits
 
 <!-- ![Example](test.png) -->
 
